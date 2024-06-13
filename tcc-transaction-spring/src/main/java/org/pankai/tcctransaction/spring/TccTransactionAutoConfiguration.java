@@ -1,0 +1,78 @@
+package org.pankai.tcctransaction.spring;
+
+import org.pankai.tcctransaction.interceptor.CompensableTransactionInterceptor;
+import org.pankai.tcctransaction.interceptor.ResourceCoordinatorInterceptor;
+import org.pankai.tcctransaction.recover.TransactionRecovery;
+import org.pankai.tcctransaction.spring.aspect.TccCompensableAspect;
+import org.pankai.tcctransaction.spring.aspect.TccTransactionContextAspect;
+import org.pankai.tcctransaction.spring.support.TccTransactionConfigurator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+
+/**
+ * TccTransaction bean初始化类
+ * Created by pktczwd on 2016/12/20.
+ */
+@Configuration
+@ComponentScan
+@EnableScheduling
+public class TccTransactionAutoConfiguration {
+
+    @Bean
+    public TccTransactionConfigurator tccTransactionConfigurator() {
+        return new TccTransactionConfigurator();
+    }
+
+    /**
+     * 事务恢复
+     * @return
+     */
+    @Bean
+    public TransactionRecovery transactionRecovery() {
+        TransactionRecovery transactionRecovery = new TransactionRecovery();
+        transactionRecovery.setTransactionConfigurator(tccTransactionConfigurator());
+        return transactionRecovery;
+    }
+
+    /**
+     * TCC事务配置器
+     * @return
+     */
+    @Bean
+    public CompensableTransactionInterceptor compensableTransactionInterceptor() {
+        CompensableTransactionInterceptor compensableTransactionInterceptor = new CompensableTransactionInterceptor();
+        compensableTransactionInterceptor.setTransactionConfigurator(tccTransactionConfigurator());
+        return compensableTransactionInterceptor;
+    }
+
+    @Bean
+    public ResourceCoordinatorInterceptor resourceCoordinatorInterceptor() {
+        ResourceCoordinatorInterceptor resourceCoordinatorInterceptor = new ResourceCoordinatorInterceptor();
+        resourceCoordinatorInterceptor.setTransactionConfigurator(tccTransactionConfigurator());
+        return resourceCoordinatorInterceptor;
+    }
+
+    @Bean
+    public TccCompensableAspect tccCompensableAspect() {
+        TccCompensableAspect tccCompensableAspect = new TccCompensableAspect();
+        tccCompensableAspect.setCompensableTransactionInterceptor(compensableTransactionInterceptor());
+        return tccCompensableAspect;
+    }
+
+    @Bean
+    public TccTransactionContextAspect tccTransactionContextAspect() {
+        TccTransactionContextAspect tccTransactionContextAspect = new TccTransactionContextAspect();
+        tccTransactionContextAspect.setResourceCoordinatorInterceptor(resourceCoordinatorInterceptor());
+        return tccTransactionContextAspect;
+    }
+
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
+        return new ThreadPoolTaskScheduler();
+    }
+
+
+}
