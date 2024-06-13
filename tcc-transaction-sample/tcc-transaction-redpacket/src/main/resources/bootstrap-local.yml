@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: tcc-transaction-cap
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

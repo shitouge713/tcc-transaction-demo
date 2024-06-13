@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.mengyun.tcctransaction.sample.dao.OrderDao">
+
+
+
+    <sql id="sql_select">
+        SELECT
+        ORDER_ID as ID,
+        PAYER_USER_ID,
+        PAYEE_USER_ID,
+        RED_PACKET_PAY_AMOUNT,
+        CAPITAL_PAY_AMOUNT,
+        STATUS,
+        MERCHANT_ORDER_NO,
+        VERSION
+        FROM
+        ORD_ORDER
+    </sql>
+
+    <select id="findByMerchantOrderNo" resultType="org.mengyun.tcctransaction.sample.entity.Order">
+        <include refid="sql_select"/>
+        WHERE MERCHANT_ORDER_NO = #{findByMerchantOrderNo}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ORD_ORDER
+        (
+        PAYER_USER_ID,
+        PAYEE_USER_ID,
+        RED_PACKET_PAY_AMOUNT,
+        CAPITAL_PAY_AMOUNT,
+        STATUS,
+        MERCHANT_ORDER_NO,
+        VERSION
+        )
+        VALUES
+            (
+            #{payerUserId},
+            #{payeeUserId},
+            #{redPacketPayAmount},
+            #{capitalPayAmount},
+            #{status},
+            #{merchantOrderNo},
+            #{version}
+            )
+    </insert>
+
+    <update id="update" parameterType="org.mengyun.tcctransaction.sample.entity.Order">
+        UPDATE
+        ORD_ORDER
+        SET
+        STATUS = #{status},
+        RED_PACKET_PAY_AMOUNT = #{redPacketPayAmount},
+        CAPITAL_PAY_AMOUNT = #{capitalPayAmount},
+        VERSION = #{version}
+        WHERE ORDER_ID = #{id} AND VERSION=#{version}-1
+    </update>
+</mapper>

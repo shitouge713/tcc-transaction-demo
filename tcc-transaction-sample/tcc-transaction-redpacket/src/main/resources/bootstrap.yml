@@ -1,0 +1,18 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: tcc-order
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    tccOrder:
+      driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/tcc_red?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2b8&allowMultiQueries=true
+      username: root
+      password: 123456
+    tcc:
+      driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/tcc?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2b8&allowMultiQueries=true
+      username: root
+      password: 123456
