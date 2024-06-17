@@ -47,16 +47,15 @@ public class Transaction implements Serializable {
     }
 
     public void enlistParticipant(Participant participant) {
-        //logging......start
         logger.debug("Enlist participant.");
         Terminator terminator = participant.getTerminator();
+        //为了展示给用户看，记录日志，无其他作用
         if (terminator != null) {
             logger.debug("提交类名，class is:" + terminator.getConfirmInvocationContext().getTargetClass().getName());
             logger.debug("提交方法，method is:" + terminator.getConfirmInvocationContext().getMethodName());
             logger.debug("取消类名，class is:" + terminator.getCancelInvocationContext().getTargetClass().getName());
             logger.debug("取消方法，method is:" + terminator.getCancelInvocationContext().getMethodName());
         }
-        //logging......end
         participants.add(participant);
     }
 

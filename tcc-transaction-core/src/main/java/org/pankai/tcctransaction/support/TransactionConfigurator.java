@@ -5,7 +5,7 @@ import org.pankai.tcctransaction.TransactionRepository;
 import org.pankai.tcctransaction.recover.RecoverConfig;
 
 /**
- * 事务配置接口
+ * 事务处理类接口
  * Created by pktczwd on 2016/12/7.
  */
 public interface TransactionConfigurator {

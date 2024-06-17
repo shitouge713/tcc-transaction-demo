@@ -33,6 +33,7 @@ public class TransactionManager {
 
     public void propagationNewBegin(TransactionContext transactionContext) {
         Transaction transaction = new Transaction(transactionContext);
+        //在创建阶段持久化
         transactionConfigurator.getTransactionRepository().create(transaction);
         threadLocalTransaction.set(transaction);
     }
@@ -40,7 +41,6 @@ public class TransactionManager {
     public void propagationExistBegin(TransactionContext transactionContext) throws NoExistedTransactionException {
         TransactionRepository transactionRepository = transactionConfigurator.getTransactionRepository();
         Transaction transaction = transactionRepository.findByXid(transactionContext.getXid());
-
         if (transaction != null) {
             transaction.changeStatus(TransactionStatus.valueOf(transactionContext.getStatus()));
             threadLocalTransaction.set(transaction);
@@ -54,7 +54,6 @@ public class TransactionManager {
         Transaction transaction = getCurrentTransaction();
         transaction.changeStatus(TransactionStatus.CONFIRMING);
         transactionConfigurator.getTransactionRepository().update(transaction);
-
         try {
             transaction.commit();
             transactionConfigurator.getTransactionRepository().delete(transaction);
@@ -74,7 +73,6 @@ public class TransactionManager {
         Transaction transaction = getCurrentTransaction();
         transaction.changeStatus(TransactionStatus.CANCELLING);
         transactionConfigurator.getTransactionRepository().update(transaction);
-
         try {
             transaction.rollback();
             transactionConfigurator.getTransactionRepository().delete(transaction);

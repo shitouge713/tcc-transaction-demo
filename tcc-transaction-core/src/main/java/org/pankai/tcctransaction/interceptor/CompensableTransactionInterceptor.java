@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 
 /**
+ * 先执行
  * 对@Compensable  AOP事务增强
  * Created by pktczwd on 2016/12/14.
  */
@@ -78,10 +79,12 @@ public class CompensableTransactionInterceptor {
         } catch (Throwable tryingException) {
             logger.error("Compensable 事务trying异常，触发回滚操作，e:", tryingException);
             //在Trying阶段发生了异常,要求rollback事务.
+            //二阶段回滚 or 提交可以设计成异步操作
             transactionConfigurator.getTransactionManager().rollback();
             throw tryingException;
         }
         //在Trying阶段全部正常执行了,则执行commit操作.
+        //二阶段回滚 or 提交可以设计成异步操作
         transactionConfigurator.getTransactionManager().commit();
         return returnValue;
     }

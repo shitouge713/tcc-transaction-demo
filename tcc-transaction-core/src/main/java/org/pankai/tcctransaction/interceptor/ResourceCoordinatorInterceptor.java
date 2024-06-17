@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 
 /**
+ * 后执行
  * Created by pktczwd on 2016/12/14.
  */
 public class ResourceCoordinatorInterceptor {
@@ -41,7 +42,7 @@ public class ResourceCoordinatorInterceptor {
         } else {
             logger.debug("Transaction is null.");
         }
-        //重点是try阶段将回滚/提交方法加入到事务中
+        //try阶段将回滚/提交方法加入到事务中
         if (transaction != null && transaction.getStatus().equals(TransactionStatus.TRYING)) {
             TransactionContext transactionContext = CompensableMethodUtils.getTransactionContextFromArgs(pjp.getArgs());
             //判断是否有Compensable注解
@@ -103,7 +104,6 @@ public class ResourceCoordinatorInterceptor {
         //所以此处,预留给TransactionContext的位置起了作用.
         //原本在调用远程方法的时候,此处传入的是null,在这里由tcc-transaction填入了值.
         pjp.getArgs()[position] = new TransactionContext(xid, transaction.getStatus().getId());
-
         //基于约定,confirm方法与cancel方法的参数及其类型,顺序,应该一样.
         Object[] tryArgs = pjp.getArgs();
         Object[] confirmArgs = new Object[tryArgs.length];
@@ -121,13 +121,9 @@ public class ResourceCoordinatorInterceptor {
         //而取消事务的时候,事务上下文的状态是CANCELLING.
         InvocationContext confirmInvocation = new InvocationContext(targetClass, method.getName(), method.getParameterTypes(), confirmArgs);
         InvocationContext cancelInvocation = new InvocationContext(targetClass, method.getName(), method.getParameterTypes(), cancelArgs);
-
         Participant participant = new Participant(xid, new Terminator(confirmInvocation, cancelInvocation));
-
         transaction.enlistParticipant(participant);
-
         TransactionRepository transactionRepository = transactionConfigurator.getTransactionRepository();
-
         transactionRepository.update(transaction);
 
         return participant;
@@ -139,25 +135,16 @@ public class ResourceCoordinatorInterceptor {
     private Participant generateAndEnlistProviderParticipant(ProceedingJoinPoint pjp) {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
-
         Compensable compensable = getCompensable(pjp);
-
         String confirmMethodName = compensable.confirmMethod();
         String cancelMethodName = compensable.cancelMethod();
-
         Transaction transaction = transactionConfigurator.getTransactionManager().getCurrentTransaction();
-
         TransactionXid xid = new TransactionXid(transaction.getXid().getGlobalTransactionId());
-
         Class targetClass = ReflectionUtils.getDeclaringType(pjp.getTarget().getClass(), method.getName(), method.getParameterTypes());
-
         InvocationContext confirmInvocation = new InvocationContext(targetClass, confirmMethodName, method.getParameterTypes(), pjp.getArgs());
         InvocationContext cancelInvocation = new InvocationContext(targetClass, cancelMethodName, method.getParameterTypes(), pjp.getArgs());
-
         Participant participant = new Participant(xid, new Terminator(confirmInvocation, cancelInvocation));
-
         transaction.enlistParticipant(participant);
-
         TransactionRepository transactionRepository = transactionConfigurator.getTransactionRepository();
         transactionRepository.update(transaction);
 

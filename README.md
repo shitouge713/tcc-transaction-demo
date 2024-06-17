@@ -29,3 +29,6 @@
 
 ## 访问请求（post）（值不要动，这些值是有数据的）
 http://localhost:7000/placeorder?redPacketPayAmount=10&shopId=1&payerUserId=1000&productId=1
+
+## 不足
+该版本tcc属于简练版本，暂不支持异步操作
